@@ -1,3 +1,18 @@
+---
+title: "Lung Cancer Prediction using KNN Algorithm-Team Quatum"
+
+output: html_document
+---
+## Install language server
+```{r setup, include=FALSE}
+if (require("languageserver")) {
+  require("languageserver")
+} else {
+  install.packages("languageserver", dependencies = TRUE,
+                   repos = "https://cloud.r-project.org")
+}
+
+
 if (require("languageserver")) {
   require("languageserver")
 } else {
@@ -6,26 +21,9 @@ if (require("languageserver")) {
 }
 
 # Introduction ----
-# There are hundreds of algorithms to choose from.
-# A list of the classification and regression algorithms offered by
-# the caret package can be found here:
-# http://topepo.github.io/caret/available-models.html
+#The algorithm that is used is the KNN algorithm with caret
 
-# The goal of predictive modelling is to use the most appropriate algorithm to
-# design an accurate model that represents the dataset. Selecting the most
-# appropriate algorithm is a process that involves trial-and-error.
-
-# If the most appropriate algorithm was known beforehand, then it would not be
-# necessary to use Machine Learning. The trial-and-error approach to selecting
-# the most appropriate algorithm involves evaluating a diverse set of
-# algorithms on the dataset, and identifying the algorithms that create
-# accurate models and the ones that do not.
-
-# Once you have a shortlist of the top algorithms, you can then improve their
-# results further by either tuning the algorithm parameters or by combining the
-# predictions of multiple models using ensemble methods.
-
-# STEP 1. Install and Load the Required Packages ----
+# STEP 1. Install and Load the Required Packages below ----
 library(readr)
 ## stats ----
 if (require("stats")) {
@@ -103,6 +101,17 @@ lung_cancer <- read_csv("data/survey lung cancer.csv",
                GENDER = col_character(),
                AGE = col_integer(),
                SMOKING = col_integer(),
+               YELLOW_FINGERS= col_integer(),
+               PEER_PRESSURE = col_integer(),
+               CHRONIC_DISEASE = col_integer(),
+               FATIGUE = col_integer(),
+               ALLERGY = col_integer(),
+               WHEEZING = col_integer(),
+               ALCOHOL_CONSUMING = col_integer(),
+               SHORTNESS_OF_BREATH = col_integer(),
+               SWALLOWING_DIFFICULTY = col_integer(),
+               CHEST_PAIN = col_integer(),
+            
                LUNG_CANCER =
                  col_factor(levels =
                               c("YES",
@@ -112,7 +121,7 @@ lung_cancer <- read_csv("data/survey lung cancer.csv",
                # license = col_skip()
              ))
 ### 3.d. kNN for a regression problem with CARET's train function ----
-#### Load and split the dataset ----
+#### tHE DATASET IS Loaded and it is split ----
 data(lung_cancer)
 
 # Define an 80:20 train:test data split of the dataset.
@@ -122,25 +131,25 @@ train_index <- createDataPartition(lung_cancer$LUNG_CANCER,
 lung_cancer_train <- lung_cancer[train_index, ]
 lung_cancer_test <- lung_cancer[-train_index, ]
 
-#### Train the model ----
+####In this step the model is  trained ----
 # We apply the 5-fold cross validation resampling method
 # We also apply the standardize data transform
 set.seed(7)
 train_control <- trainControl(method = "cv", number = 5)
-housing_caret_model_knn <- train(LUNG_CANCER ~ ., data = lung_cancer,
+lung_caret_model_knn <- train(LUNG_CANCER ~ ., data = lung_cancer,
                                  method = "knn", metric = "Accuracy",
                                  preProcess = c("center", "scale"),
                                  trControl = train_control)
 
 #### Display the model's details ----
-print(housing_caret_model_knn)
+print(lung_caret_model_knn)
 
-#### Make predictions ----
-predictions <- predict(housing_caret_model_knn,
+#### Predictions are then made ----
+predictions <- predict(lung_caret_model_knn,
                        lung_cancer_test[, 1:16])
 
 
-#### Display the model's evaluation metrics ----
+#### The model's evaluation metrics is then displayed ----
 
 confusion_matrix <-
   caret::confusionMatrix(predictions,
