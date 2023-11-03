@@ -1,0 +1,159 @@
+---
+title: "Business Intelligence Project"
+author: "Fareed Matovu Kimuli"
+date: "3/11/2023"
+output:
+  github_document: 
+    toc: yes
+    toc_depth: 4
+    fig_width: 6
+    fig_height: 4
+    df_print: default
+editor_options:
+  chunk_output_type: console
+---
+
+# Student Details
+
+|                                              |     |
+|----------------------------------------------|-----|
+| **Student ID Number**                        | 135590|
+| **Student Name**                             | Fareed Matovu Kimuli |
+| **BBIT 4.2 Group**                           | B|
+| **BI Project Group Name/ID (if applicable)** | Quantum |
+
+# Setup Chunk
+
+**Note:** the following KnitR options have been set as the global defaults: <BR> `knitr::opts_chunk$set(echo = TRUE, warning = FALSE, eval = TRUE, collapse = FALSE, tidy = TRUE)`.
+
+More KnitR options are documented here <https://bookdown.org/yihui/rmarkdown-cookbook/chunk-options.html> and here <https://yihui.org/knitr/options/>.
+
+```{r setup, include=FALSE}
+library(formatR)
+knitr::opts_chunk$set(
+  warning = FALSE,
+  collapse = FALSE
+)
+```
+
+# Understanding the Dataset (Exploratory Data Analysis (EDA))
+
+## Loading the Dataset
+
+### Source:
+
+The dataset that was used can be downloaded here: *\<provide a link\>*
+
+### Reference:
+
+*\<Cite the dataset here using APA\>\
+Refer to the APA 7th edition manual for rules on how to cite datasets: <https://apastyle.apa.org/style-grammar-guidelines/references/examples/data-set-references>*
+
+```{r Dataset Loader}
+library(readr)
+
+if (require("stats")) {
+  require("stats")
+} else {
+  install.packages("stats", dependencies = TRUE,
+                   repos = "https://cloud.r-project.org")
+}
+
+## mlbench ----
+if (require("mlbench")) {
+  require("mlbench")
+} else {
+  install.packages("mlbench", dependencies = TRUE,
+                   repos = "https://cloud.r-project.org")
+}
+
+## caret ----
+if (require("caret")) {
+  require("caret")
+} else {
+  install.packages("caret", dependencies = TRUE,
+                   repos = "https://cloud.r-project.org")
+}
+
+## MASS ----
+if (require("MASS")) {
+  require("MASS")
+} else {
+  install.packages("MASS", dependencies = TRUE,
+                   repos = "https://cloud.r-project.org")
+}
+
+## glmnet ----
+if (require("glmnet")) {
+  require("glmnet")
+} else {
+  install.packages("glmnet", dependencies = TRUE,
+                   repos = "https://cloud.r-project.org")
+}
+
+## e1071 ----
+if (require("e1071")) {
+  require("e1071")
+} else {
+  install.packages("e1071", dependencies = TRUE,
+                   repos = "https://cloud.r-project.org")
+}
+
+## kernlab ----
+if (require("kernlab")) {
+  require("kernlab")
+} else {
+  install.packages("kernlab", dependencies = TRUE,
+                   repos = "https://cloud.r-project.org")
+}
+
+## rpart ----
+if (require("rpart")) {
+  require("rpart")
+} else {
+  install.packages("rpart", dependencies = TRUE,
+                   repos = "https://cloud.r-project.org")
+}
+
+library(readr)
+Food_demand <- read_csv("data/Food demand.csv")
+View(Food_demand)
+
+
+
+# Define an 80:20 train:test data split of the dataset.
+train_index <- createDataPartition(Food_demand$num_orders,
+                                   p = 0.8,
+                                   list = FALSE)
+food_demand_train <- Food_demand[train_index, ]
+food_demand_test <- Food_demand[-train_index, ]
+
+#### Train the model ----
+food_demand_model_lm <- lm(num_orders ~ ., food_demand_train)
+
+
+#### Make predictions ----
+predictions <- predict(food_demand_model_lm, food_demand_test[, 1:9])
+
+
+rmse <- sqrt(mean((food_demand_test$num_orders - predictions)^2))
+print(paste("RMSE =", sprintf(rmse, fmt = "%#.4f")))
+
+ssr <- sum((food_demand_test$num_orders - predictions)^2)
+print(paste("SSR =", sprintf(ssr, fmt = "%#.4f")))
+
+##### SST ----
+# SST is the total sum of squares (the sum of squared differences
+# between observed values and their mean)
+sst <- sum((food_demand_test$num_orders - mean(food_demand_test$num_orders))^2)
+print(paste("SST =", sprintf(sst, fmt = "%#.4f")))
+
+r_squared <- 1 - (ssr / sst)
+print(paste("R Squared =", sprintf(r_squared, fmt = "%#.4f")))
+
+
+absolute_errors <- abs(predictions - food_demand_test$num_orders)
+mae <- mean(absolute_errors)
+print(paste("MAE =", sprintf(mae, fmt = "%#.4f")))
+
+
